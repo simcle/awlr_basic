@@ -18,7 +18,7 @@ import pdaRoutes from './src/routes/pdaRoutes.js';
 import sensorRoutes from './src/routes/sensorRoutes.js'
 import warningRoutes from './src/routes/WarningRoutes.js'
 import statisticRoutes from './src/routes/statisticRoutes.js'
-import notificationRoutes from './src/routes/NotificationRoutes.js';
+import notificationRoutes from './src/routes/notificationRoutes.js';
 // ===== SOCKET.IO IMPORTS =====
 import socket from 'fastify-socket'
 
