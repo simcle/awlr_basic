@@ -28,7 +28,8 @@ dotenv.config()
 // FASTIFY INSTANCE
 // ===========================================================
 const fastify = Fastify({
-    logger: true
+    logger: false,
+    trustProxy: true
 })
 
 // ===========================================================
