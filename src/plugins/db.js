@@ -6,7 +6,7 @@ export default fp( async (fastify, opt) => {
         await mongoose.connect(process.env.MONGODB_URI)
         fastify.log.info('MongoDB connected')
     } catch (error) {
-        fastify.log.error('MongoDB connection error:', err);
+        fastify.log.error('MongoDB connection error:', error);
         process.exit(1);   
     }
 })
