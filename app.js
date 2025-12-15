@@ -28,7 +28,7 @@ dotenv.config()
 // FASTIFY INSTANCE
 // ===========================================================
 const fastify = Fastify({
-    logger: false
+    logger: true
 })
 
 // ===========================================================
