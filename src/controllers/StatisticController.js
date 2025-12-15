@@ -19,7 +19,7 @@ export const getPda = async (req, res) => {
 
 const normalizeStartEnd = (start, end, mode) => {
     const s = new Date(start)
-    if(mode !== 'real-time') s.setHours(0, 0, 0, 0)
+    s.setHours(0, 0, 0, 0)
     const e = new Date(end)
     e.setHours(23, 59, 59, 999)
     return { s, e }
