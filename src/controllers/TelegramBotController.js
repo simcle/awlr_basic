@@ -24,8 +24,8 @@ export const createTelegramBot = async (req, res) => {
     try {
         const unorId = req.user.unorId
         const { botToken } = req.body
-        await axios.post(`/bot${token}/setWebhook?url=${webhookUrl}&secret_token=${unorId}`)
-        const bot = await axios.get(`/bot${token}/getMe`)
+        await axios.post(`/bot${botToken}/setWebhook?url=${webhookUrl}&secret_token=${unorId}`)
+        const bot = await axios.get(`/bot${botToken}/getMe`)
         console.log(bot)
         const telegram = await TelegramBot.create({
             unorId,
