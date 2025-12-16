@@ -84,7 +84,7 @@ export const webhookTelegram = async (req, res) => {
         if(!bot) {
             return res.code(200).send();
         }
-        
+        console.log(req.body)
         const token = bot.botToken
         if(text == '/start') {
             await TelegramBot.findOneAndUpdate(
