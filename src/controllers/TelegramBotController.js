@@ -71,7 +71,7 @@ export const webhookTelegram = async (req, res) => {
         const chat = update.message.chat
         const chatId = chat.id 
         const text = update.message.text.trim()
-    
+        console.log(update)
         const bot = await TelegramBot.findOne({unorId: unorId}).select('+botToken')
         if(!bot) {
             return res.code(200);
@@ -100,9 +100,8 @@ export const sendTelegram = async (unorId, message) => {
     try {
         const botConfig = await TelegramBot.findOne({unorId: unorId, isActive: true}).select('+botToken')
         if(!botConfig) return
-        console.log(message)
         const token = botConfig.botToken
-        const chatId = botConfig.chatId || '8539913634'
+        const chatId = botConfig.chatId
         await axios.post(`bot${token}/sendMessage`, {
             chat_id: chatId,
             text: message,
