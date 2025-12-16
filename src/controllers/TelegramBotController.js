@@ -26,10 +26,11 @@ export const createTelegramBot = async (req, res) => {
         const { botToken } = req.body
         await axios.post(`/bot${botToken}/setWebhook?url=${webhookUrl}&secret_token=${unorId}`)
         const bot = await axios.get(`/bot${botToken}/getMe`)
-        console.log(bot)
+        const botLink = 'https://t.me/'+bot.result.username
         const telegram = await TelegramBot.create({
             unorId,
-            botToken
+            botToken,
+            botLink
         })
         const token = telegram.botToken
         const maskedToken = token ? token.slice(0, 10) + ":XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX": null
@@ -37,6 +38,7 @@ export const createTelegramBot = async (req, res) => {
             status: true,
             token: maskedToken,
             isActive: telegram.isActive,
+            botLink: botLink,
             chatId: telegram.chatId
         })
     } catch (error) {
