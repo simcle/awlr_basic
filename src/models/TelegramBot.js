@@ -13,9 +13,13 @@ const TelegramBotSchema = new Schema({
         required: true,
         select: false
     },
+    botLink: {
+        type: String,
+        default: null
+    },
     chatId: {
         type: String,
-        default: false
+        default: null
     },
     isActive: {
         type: Boolean,
