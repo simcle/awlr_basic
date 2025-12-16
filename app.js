@@ -19,6 +19,9 @@ import sensorRoutes from './src/routes/sensorRoutes.js'
 import warningRoutes from './src/routes/WarningRoutes.js'
 import statisticRoutes from './src/routes/statisticRoutes.js'
 import notificationRoutes from './src/routes/notificationRoutes.js';
+import telegramBotRoutes from './src/routes/telegramBotRoutes.js';
+import telegramWebhookRoutes from './src/routes/telegramWebhookRoutes.js';
+
 // ===== SOCKET.IO IMPORTS =====
 import socket from 'fastify-socket'
 
@@ -64,6 +67,8 @@ await fastify.register(sensorRoutes, {prefix: '/api'})
 await fastify.register(warningRoutes, {prefix: '/api'})
 await fastify.register(statisticRoutes, {prefix: '/api'})
 await fastify.register(notificationRoutes, {prefix: '/api'})
+await fastify.register(telegramBotRoutes, {prefix: '/api'})
+await fastify.register(telegramWebhookRoutes, {prefix: '/api'})
 
 fastify.ready((err) => {
     if(err) console.log(err)

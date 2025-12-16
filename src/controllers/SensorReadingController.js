@@ -3,8 +3,16 @@ import PdaModel from '../models/PdaModel.js'
 import SensorReading from '../models/SensorReading.js';
 import WarningLog from '../models/WarningLog.js';
 import NotificationsModel from '../models/NotificationsModel.js';
+import { sendTelegram } from './TelegramBotController.js';
+import dayjs from 'dayjs';
+import 'dayjs/locale/id.js'
 import ExcelJS from 'exceljs';
 
+dayjs.locale('id')
+
+const formatTanggal = (date) => {
+    return dayjs(date).format('DD/MM/YY HH:mm')
+}
 // format pesan otomatis
 const makeWarningMessage = (status, level) => {
     return `Level ${level} memasuki status ${status}`;
@@ -50,7 +58,7 @@ export const saveReading = async (req, res) => {
         }
 
         // CEK PDA DI DATABASE
-        const pda = await PdaModel.findOne({ _id: pdaId }).select("unorId dasId elevasi threshold sensorStatusLevel sensorStatus");
+        const pda = await PdaModel.findOne({ _id: pdaId }).select("unorId dasId name elevasi threshold sensorStatusLevel sensorStatus");
         if (!pda) {
             return res.code(404).send({
                 status: false,
@@ -119,7 +127,7 @@ export const saveReading = async (req, res) => {
             pda.sensorStatusLevel = currentStatus;
 
             // simpan notifikasi level
-            await NotificationsModel.create({
+            const notif = await NotificationsModel.create({
                 pdaId,
                 dasId: pda.dasId,
                 unorId: pda.unorId,
@@ -137,6 +145,12 @@ export const saveReading = async (req, res) => {
                 message: makeWarningMessage(currentStatus, level),
                 updatedAt: new Date()
             })
+            const message = `*${currentStatus}*
+Lokasi  : ${pda.name.toUpperCase()}
+TMA     : ${level} mdpl
+Waktu   : ${formatTanggal(new Date())}
+${notif.message}`
+            await sendTelegram(pda.unorId, message)
         } else {
             req.server.io.to(`unor_${pda.unorId}`).emit('pda:updated', {
                 pdaId,
