@@ -71,7 +71,6 @@ export const webhookTelegram = async (req, res) => {
         const chat = update.message.chat
         const chatId = chat.id 
         const text = update.message.text.trim()
-        console.log(update)
         const bot = await TelegramBot.findOne({unorId: unorId}).select('+botToken')
         if(!bot) {
             return res.code(200);
