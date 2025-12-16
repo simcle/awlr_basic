@@ -13,7 +13,8 @@ export const getTelegramBot = async (req, res) => {
             status: true,
             token: maskedToken,
             isActive: telegram.isActive,
-            chatId: telegram.chatId
+            chatId: telegram.chatId,
+            botLink: telegram.botLink
         })
     } catch (error) {
         
