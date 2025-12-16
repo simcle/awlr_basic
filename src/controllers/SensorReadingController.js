@@ -146,8 +146,8 @@ export const saveReading = async (req, res) => {
                 updatedAt: new Date()
             })
             const message = `*${currentStatus}*
-Lokasi  : ${pda.name.toUpperCase()}
-TMA     : ${level} mdpl
+Lokasi    : ${pda.name.toUpperCase()}
+TMA      : ${level} mdpl
 Waktu   : ${formatTanggal(new Date())}
 ${notif.message}`
             await sendTelegram(pda.unorId, message)

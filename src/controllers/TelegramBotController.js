@@ -71,10 +71,20 @@ export const webhookTelegram = async (req, res) => {
         const chat = update.message.chat
         const chatId = chat.id 
         const text = update.message.text.trim()
+        const message = update.message
+        if (!message) {
+            return reply.code(200).send();
+        }
+        // 🚫 ABAIKAN pesan dari bot sendiri
+        if (message.from?.is_bot) {
+            return reply.code(200).send();
+        }
+
         const bot = await TelegramBot.findOne({unorId: unorId}).select('+botToken')
         if(!bot) {
-            return res.code(200);
+            return res.code(200).send();
         }
+        
         const token = bot.botToken
         if(text == '/start') {
             await TelegramBot.findOneAndUpdate(
@@ -88,10 +98,10 @@ export const webhookTelegram = async (req, res) => {
 Notifikasi AWLR untuk akun Anda sudah aktif. Anda akan menerima peringatan sesuai pengaturan.`,
                 parse_mode: "Markdown"
             })
-            return res.code(200)
+            return res.code(200).send()
         }
     } catch (error) {
-        return res.code(200)
+        return res.code(200).send()
     }
 }
 
