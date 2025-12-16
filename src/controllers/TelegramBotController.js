@@ -73,11 +73,11 @@ export const webhookTelegram = async (req, res) => {
         const text = update.message.text.trim()
         const message = update.message
         if (!message) {
-            return reply.code(200).send();
+            return res.code(200).send();
         }
         // 🚫 ABAIKAN pesan dari bot sendiri
         if (message.from?.is_bot) {
-            return reply.code(200).send();
+            return res.code(200).send();
         }
 
         const bot = await TelegramBot.findOne({unorId: unorId}).select('+botToken')
