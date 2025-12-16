@@ -42,6 +42,7 @@ export const createTelegramBot = async (req, res) => {
             chatId: telegram.chatId
         })
     } catch (error) {
+        console.log(error)
         return res.code(500).send({
             status: false,
             message: "Terjadi kesalahan pada server"
