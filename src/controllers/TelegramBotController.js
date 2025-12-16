@@ -89,10 +89,10 @@ export const webhookTelegram = async (req, res) => {
         if(!bot) {
             return res.code(200).send();
         }
-        console.log(req.body)
+
         const token = bot.botToken
         if(text == '/start') {
-            await TelegramBot.findOneAndUpdate(
+            const bot = await TelegramBot.findOneAndUpdate(
                 {unorId},
                 {isActive: true, chatId},
                 {upsert: true, new: true}
@@ -102,6 +102,11 @@ export const webhookTelegram = async (req, res) => {
                 text: `*Telegram berhasil terhubung*
 Notifikasi AWLR untuk akun Anda sudah aktif. Anda akan menerima peringatan sesuai pengaturan.`,
                 parse_mode: "Markdown"
+            })
+            req.server.io.to(`unor_${unorId}`).emit('unor:telegram', {
+                isActive: bot.isActive,
+                chatId: bot.chatId,
+                botLink: bot.botLink
             })
             return res.code(200).send()
         }
