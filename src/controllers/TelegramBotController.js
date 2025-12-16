@@ -83,7 +83,7 @@ export const webhookTelegram = async (req, res) => {
                 {isActive: true, chatId},
                 {upsert: true, new: true}
             )
-            await axios.post(`bot${token}/senMessage`, {
+            await axios.post(`bot${token}/sendMessage`, {
                 chatId: chatId,
                 text: `*Telegram berhasil terhubung*
 Notifikasi AWLR untuk akun Anda sudah aktif. Anda akan menerima peringatan sesuai pengaturan.`,
