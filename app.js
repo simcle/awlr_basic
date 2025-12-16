@@ -1,4 +1,4 @@
-import dotenv from 'dotenv'
+import 'dotenv/config'
 import Fastify from "fastify";
 import fastifyStatic from "@fastify/static";
 import path from 'path'
@@ -25,7 +25,6 @@ import telegramWebhookRoutes from './src/routes/telegramWebhookRoutes.js';
 // ===== SOCKET.IO IMPORTS =====
 import socket from 'fastify-socket'
 
-dotenv.config()
 
 // ===========================================================
 // FASTIFY INSTANCE
