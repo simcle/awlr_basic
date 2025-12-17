@@ -1,5 +1,5 @@
 import PdaModel from '../models/PdaModel.js'
-import NotificationsModel from '../models/NotificationsModel.js'
+import NotificationService from '../services/NotificationService.js';
 
 export const checkSensorOffline = async (io) => {
     const timeoutMs = 4 * 60 * 1000; // 4 menit
@@ -19,22 +19,9 @@ export const checkSensorOffline = async (io) => {
         );
         
         console.log(`PDA ${pda.name} dinyatakan OFFLINE (lebih dari 4 menit)`);
-
-        await NotificationsModel.create({
-            pdaId: pda._id,
-            dasId: pda.dasId,
-            unorId: pda.unorId,
-            type: "OFFLINE",
-            isRead: false,
-            timestamp: new Date()
-        });
-
-        io.to(`unor_${pda.unorId}`).emit("pda:offline", {
-            pdaId: pda._id,
-            name: pda.name,
-            sensorStatus: 'OFFLINE',
-            message: `${pda.name} OFFLINE (tidak mengirim data lebih dari 4 menit)`,
-            updatedAt: new Date()
-        });
+        await NotificationService.handleOffline({
+            pda,
+            io
+        })
     }
 };

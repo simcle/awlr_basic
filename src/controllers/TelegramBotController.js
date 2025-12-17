@@ -1,7 +1,12 @@
 import TelegramBot from "../models/TelegramBot.js";
 import axios from "axios";
-axios.defaults.baseURL = 'https://api.telegram.org'
+
+const axiosTelegram = axios.create({
+    baseURL: 'https://api.telegram.org',
+    timeout: 10000
+})
 const webhookUrl = 'https://apiawlrbasic.ndpteknologi.com/api/telegram/webhook'
+
 export const getTelegramBot = async (req, res) => {
     try {
         const unorId = req.user.unorId
@@ -25,8 +30,8 @@ export const createTelegramBot = async (req, res) => {
     try {
         const unorId = req.user.unorId
         const { botToken } = req.body
-        await axios.post(`/bot${botToken}/setWebhook?url=${webhookUrl}&secret_token=${unorId}`)
-        const bot = await axios.get(`/bot${botToken}/getMe`)
+        await axiosTelegram.post(`/bot${botToken}/setWebhook?url=${webhookUrl}&secret_token=${unorId}`)
+        const bot = await axiosTelegram.get(`/bot${botToken}/getMe`)
         const botLink = 'https://t.me/'+bot.data.result.username
         const telegram = await TelegramBot.create({
             unorId,
@@ -56,7 +61,7 @@ export const deleteTelegramBot = async (req, res) => {
         const unorId = req.user.unorId
         const deleted = await TelegramBot.findOneAndDelete(unorId).select('+botToken')
         const token = deleted.botToken
-        await axios.post(`/bot${token}/deleteWebhook?url=https://webhook.site/cc4060c5-a629-4aa4-ba37-fd904ae97296`)
+        await axiosTelegram.post(`/bot${token}/deleteWebhook?url=https://webhook.site/cc4060c5-a629-4aa4-ba37-fd904ae97296`)
         return res.send({
             status: true,
             deleted
@@ -97,12 +102,14 @@ export const webhookTelegram = async (req, res) => {
                 {isActive: true, chatId},
                 {upsert: true, new: true}
             )
-            await axios.post(`bot${token}/sendMessage`, {
+            await axiosTelegram.post(`bot${token}/sendMessage`, {
                 chat_id: chatId,
                 text: `*Telegram berhasil terhubung*
 Notifikasi AWLR untuk akun Anda sudah aktif. Anda akan menerima peringatan sesuai pengaturan.`,
                 parse_mode: "Markdown"
             })
+
+            // websocket 
             req.server.io.to(`unor_${unorId}`).emit('unor:telegram', {
                 isActive: bot.isActive,
                 chatId: bot.chatId,
@@ -121,7 +128,7 @@ export const sendTelegram = async (unorId, message) => {
         if(!botConfig) return
         const token = botConfig.botToken
         const chatId = botConfig.chatId
-        await axios.post(`bot${token}/sendMessage`, {
+        await axiosTelegram.post(`bot${token}/sendMessage`, {
             chat_id: chatId,
             text: message,
             parse_mode: "Markdown"

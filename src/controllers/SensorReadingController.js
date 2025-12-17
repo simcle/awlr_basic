@@ -1,22 +1,10 @@
 import DasModel from '../models/DasModel.js'
 import PdaModel from '../models/PdaModel.js'
 import SensorReading from '../models/SensorReading.js';
-import WarningLog from '../models/WarningLog.js';
-import NotificationsModel from '../models/NotificationsModel.js';
-import { sendTelegram } from './TelegramBotController.js';
-import dayjs from 'dayjs';
-import 'dayjs/locale/id.js'
+import NotificationService from '../services/NotificationService.js';
 import ExcelJS from 'exceljs';
 
-dayjs.locale('id')
 
-const formatTanggal = (date) => {
-    return dayjs(date).format('DD/MM/YY HH:mm')
-}
-// format pesan otomatis
-const makeWarningMessage = (status, level) => {
-    return `Level ${level} memasuki status ${status}`;
-};
 
 // pembulatan 2 digit
 const round2 = (value) => {
@@ -111,76 +99,30 @@ export const saveReading = async (req, res) => {
             warningStatus: currentStatus
         });
 
-        // =============== SIMPAN ALERT HANYA JIKA STATUS BERUBAH ===============
-        if (currentStatus !== previousStatus && currentStatus !== "UNKNOWN") {
-            await WarningLog.create({
-                pdaId,
-                dasId: pda.dasId,
-                unorId: pda.unorId,
-                level,
-                warningStatus: currentStatus,
-                message: makeWarningMessage(currentStatus, level),
-                lastReading: new Date()
-            });
+        // NOTIFKASI STATUS
+        await NotificationService.handleWarnig({
+            server: req.server,
+            pda,
+            level,
+            previousStatus,
+            currentStatus  
+        })
 
-            // update status terakhir di PDA
-            pda.sensorStatusLevel = currentStatus;
-
-            // simpan notifikasi level
-            const notif = await NotificationsModel.create({
-                pdaId,
-                dasId: pda.dasId,
-                unorId: pda.unorId,
-                type: currentStatus,
+        // UPDATE REALTIME
+        if(currentStatus === previousStatus) {
+            await NotificationService.emitUpdate({
+                server: req.server,
+                pda,
                 level,
-                timestamp: new Date()
-
-            })
-            // SOCKET.IO - Kirim alert perubahan level
-            req.server.io.to(`unor_${pda.unorId}`).emit('pda:warning', {
-                pdaId,
-                name: pda.name,
-                level,
-                warningStatus: currentStatus,
-                message: makeWarningMessage(currentStatus, level),
-                updatedAt: new Date()
-            })
-            const message = `*${currentStatus}*
-Lokasi    : ${pda.name.toUpperCase()}
-TMA      : ${level} mdpl
-Waktu   : ${formatTanggal(new Date())}
-${notif.message}`
-            await sendTelegram(pda.unorId, message)
-        } else {
-            req.server.io.to(`unor_${pda.unorId}`).emit('pda:updated', {
-                pdaId,
-                level,
-                warningStatus: currentStatus,
-                updatedAt: new Date()
-            })
-        }
-        // updata status online
-        const wasOffline = pda.sensorStatus !== "ONLINE";
-        /* ==========================
-        Jika PDA sebelumnya offline → Emit NOTIF Online
-        ===========================*/
-        if (wasOffline) {
-            req.server.io.to(`unor_${pda.unorId}`).emit("pda:online", {
-                pdaId,
-                message: `${pda.name} kembali ONLINE`,
-                sensorStatus: 'ONLINE',
-                updatedAt: new Date()
-            });
-            await NotificationsModel.create({
-                pdaId,
-                dasId: pda.dasId,
-                unorId: pda.unorId,
-                type: "ONLINE",
-                isRead: false,
-                timestamp: new Date()
+                currentStatus
             })
         }
 
+        // NOTIF ONLINE
+        await NotificationService.handleOnline({
+            server: req.server,
+            pda
+        })
         await PdaModel.updateOne(
             { _id: pdaId },
             {
