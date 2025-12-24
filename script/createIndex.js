@@ -1,7 +1,7 @@
 import 'dotenv/config'
 import mongoose from "mongoose";
 import Notifications from "../src/models/NotificationsModel.js";
-
+import SensorReading from '../src/models/SensorReading.js'
 
 (async () => {
     try {
@@ -33,7 +33,11 @@ import Notifications from "../src/models/NotificationsModel.js";
             dasId: 1,
             timestamp: -1
         });
-
+        
+        await SensorReading.collection.createIndex({
+            pdaId: 1,
+            timestamp: 1
+        })
         console.log("✅ All indexes created successfully!");
         process.exit(0);
 
