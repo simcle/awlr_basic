@@ -54,7 +54,7 @@ export const getStatistics = async (req, res) => {
 
             // urutkan data dari lama → kebaru
 
-            { $sort: { timestamp: -1 } },
+            { $sort: { timestamp: 1 } },
             {
                 $project: {
                     _id: 1,
