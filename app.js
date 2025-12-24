@@ -1,5 +1,6 @@
 import 'dotenv/config'
 import Fastify from "fastify";
+import compress from '@fastify/compress'
 import fastifyStatic from "@fastify/static";
 import path from 'path'
 import formBody from '@fastify/formbody'
@@ -37,6 +38,10 @@ const fastify = Fastify({
 // ===========================================================
 // PLUGINS
 // ===========================================================
+await fastify.register(compress, {
+    global: true,
+    encodings: ['gzip', 'deflate']
+})
 await fastify.register(cors, {
     origin: '*',
     methods: ['GET','PUT','POST','DELETE','OPTIONS']
@@ -44,6 +49,7 @@ await fastify.register(cors, {
 await fastify.register(socket, {
     cors: {origin: '*'}
 })
+
 fastify.addContentTypeParser('application/xml', { parseAs: 'string' }, function (req, body, done) {
   done(null, body)
 })
