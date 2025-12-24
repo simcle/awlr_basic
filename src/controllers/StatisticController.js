@@ -26,6 +26,7 @@ const normalizeStartEnd = (start, end, mode) => {
 }
 
 export const getStatistics = async (req, res) => {
+    const t0 = process.hrtime.bigint();
     try {
         const {
             mode,
@@ -70,9 +71,13 @@ export const getStatistics = async (req, res) => {
         ];
         const data = await SensorReading.aggregate(pipeline);
         const threshold = await PdaModel.findById(pdaId).select('threshold')
+        
+        const t1 = process.hrtime.bigint(); // ⏱️ end
+        const durationMs = Number(t1 - t0) / 1_000_000;
         return res.send({
             status: true,
             count: data.length,
+            durationMs: Number(durationMs.toFixed(2)),
             data,
             threshold: threshold.threshold
         });
